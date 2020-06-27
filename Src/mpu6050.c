@@ -889,7 +889,7 @@ int mpu_get_temperature(long *data, unsigned long *timestamp)
 /**
  *  @brief      Read biases to the accel bias 6500 registers.
  *  This function reads from the MPU6500 accel offset cancellations registers.
- *  The format are G in +-8G format. The register is initialized with OTP 
+ *  The format are G in +-8G format. The register is initialized with OTP
  *  factory trim values.
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
@@ -911,7 +911,7 @@ int mpu_read_6500_accel_bias(long *accel_bias) {
 /**
  *  @brief      Read biases to the accel bias 6050 registers.
  *  This function reads from the MPU6050 accel offset cancellations registers.
- *  The format are G in +-8G format. The register is initialized with OTP 
+ *  The format are G in +-8G format. The register is initialized with OTP
  *  factory trim values.
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
@@ -1938,7 +1938,7 @@ static int gyro_self_test(long *bias_regular, long *bias_st)
     return result;
 }
 
-#endif 
+#endif
 #ifdef AK89xx_SECONDARY
 static int compass_self_test(void)
 {
@@ -1985,13 +1985,13 @@ static int compass_self_test(void)
         result |= 0x04;
 #elif defined MPU9250
     data = (short)(tmp[1] << 8) | tmp[0];
-    if ((data > 200) || (data < -200))  
+    if ((data > 200) || (data < -200))
         result |= 0x01;
     data = (short)(tmp[3] << 8) | tmp[2];
-    if ((data > 200) || (data < -200))  
+    if ((data > 200) || (data < -200))
         result |= 0x02;
     data = (short)(tmp[5] << 8) | tmp[4];
-    if ((data > -800) || (data < -3200))  
+    if ((data > -800) || (data < -3200))
         result |= 0x04;
 #endif
 AKM_restore:
@@ -3304,7 +3304,7 @@ static struct hal_s hal = {0};
 void mpu_setup_gyro(void)
 {
     unsigned char mask = 0, lp_accel_was_on = 0;
-    if (hal.sensors & ACCEL_ON) {			
+    if (hal.sensors & ACCEL_ON) {
         mask |= INV_XYZ_ACCEL;
         consoleLog("Accel sensor On.\n");
 		} else {
@@ -3379,33 +3379,33 @@ unsigned short inv_orientation_matrix_to_scalar(const signed char *mtx)
 /* =========================== MPU-6050 Configuration =========================== */
 int mpu_config(void)
 {
-    consoleLog("-- Configuring MPU6050... ");	
+    consoleLog("-- Configuring MPU6050... ");
 
     if(mpu_init()) {
         consoleLog("FAIL (MPU).\n");
         return -1;
-    }		
-		
+    }
+
     /* Get/set hardware configuration. Start gyro. */
     /* Wake up all sensors. */
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-		
+
     /* Push both gyro and accel data into the FIFO. */
     mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_sample_rate(MPU_DEFAULT_HZ);
-		
+
     /* Read back configuration in case it was set improperly. */
     // mpu_get_sample_rate(&gyro_rate);
     // mpu_get_gyro_fsr(&gyro_fsr);
     // mpu_get_accel_fsr(&accel_fsr);
-		
+
     /* Initialize HAL state variables. */
     hal.sensors 			= ACCEL_ON | GYRO_ON;
     hal.dmp_on 				= 0;
     hal.report 				= 0;
     hal.next_pedo_ms 		= 0;
     hal.next_temp_ms 		= 0;
-		
+
 #ifdef MPU_DMP_ENABLE
     /* To initialize the DMP:
      * 1. Call dmp_load_motion_driver_firmware(). This pushes the DMP image in
@@ -3437,9 +3437,9 @@ int mpu_config(void)
      * DMP_FEATURE_SEND_CAL_GYRO: Add calibrated gyro data to the FIFO. Cannot
      * be used in combination with DMP_FEATURE_SEND_RAW_GYRO.
      */
-        consoleLog(" writing DMP... ");		
+        consoleLog(" writing DMP... ");
         if (dmp_load_motion_driver_firmware()) {
-            consoleLog(" FAIL (DMP) --\r\n");	
+            consoleLog(" FAIL (DMP) --\r\n");
             return -1;
         }
     dmp_set_orientation(inv_orientation_matrix_to_scalar(MPU_ORIENTATION));
@@ -3463,10 +3463,10 @@ int mpu_config(void)
     dmp_enable_feature(hal.dmp_features);
     dmp_set_fifo_rate(MPU_DEFAULT_HZ);
     mpu_set_dmp_state(1);
-    hal.dmp_on = 1;		
+    hal.dmp_on = 1;
 #endif
 
-    consoleLog(" OK --\r\n");	
+    consoleLog(" OK --\r\n");
     return 0;
 }
 
@@ -3475,18 +3475,18 @@ int mpu_config(void)
 
 void mpu_get_data(void)
 {
-	
+
 	unsigned long sensor_timestamp;
 	unsigned long timestamp;
 	unsigned char new_data = 0, new_temp = 0;
 	uint8_t mpu_int_status;   // holds actual interrupt status byte from MPU
-	
+
 	// check for DMP interrupt bit or Data Ready interrupt bit (in case DMP is disabled) -> this interrupt should happen frequently
 	i2c_readByte(st.hw->addr, st.reg->int_status, &mpu_int_status);
 	if (mpu_int_status & MPU_INT_STATUS_DMP || mpu_int_status & MPU_INT_STATUS_DATA_READY) {
 			hal.new_gyro = 1;
 	}
-	
+
 	get_tick_count_ms(&timestamp);
 	/* Temperature data doesn't need to be read with every gyro sample.
 	 * Let's make them timer-based.
@@ -3495,12 +3495,12 @@ void mpu_get_data(void)
         hal.next_temp_ms = timestamp + TEMP_READ_MS;
         new_temp = 1;
 	}
-	
-	
+
+
 	if (hal.new_gyro && hal.dmp_on) {
         short gyro[3], accel[3], sensors;
-        static long quat[4], temperature;		
-        unsigned char more;			
+        static long quat[4], temperature;
+        unsigned char more;
         /* This function gets new data from the FIFO when the DMP is in
             * use. The FIFO can contain any combination of gyro, accel,
             * quaternion, and gesture data. The sensors parameter tells the
@@ -3516,49 +3516,7 @@ void mpu_get_data(void)
         dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors, &more);
         if (!more)
             hal.new_gyro = 0;
-        if (sensors & INV_XYZ_GYRO) {					
-            mpu.gyro.x = gyro[0];
-            mpu.gyro.y = gyro[1];
-            mpu.gyro.z = gyro[2];
-            new_data = 1;
-            if (new_temp) {
-                new_temp = 0;
-                mpu_get_temperature(&temperature, &sensor_timestamp);
-                mpu.temp = (int16_t)((temperature*100) >> 16); 	// Convert temperature[q16] to temperature*100[degC]
-            }					
-        }
-        if (sensors & INV_XYZ_ACCEL) {
-            mpu.accel.x = accel[0];
-            mpu.accel.y = accel[1];
-            mpu.accel.z = accel[2];
-            new_data = 1;					
-        }
-        if (sensors & INV_WXYZ_QUAT) {
-            mpu.quat.w = quat[0];
-            mpu.quat.x = quat[1];
-            mpu.quat.y = quat[2];
-            mpu.quat.z = quat[3];
-            mpu_calc_euler_angles();					// Calculate Euler angles
-            new_data = 1;					
-        }
-	} else if (hal.new_gyro) {
-        short gyro[3], accel[3];
-        long temperature;
-        unsigned char sensors, more;		
-        /* This function gets new data from the FIFO. The FIFO can contain
-            * gyro, accel, both, or neither. The sensors parameter tells the
-            * caller which data fields were actually populated with new data.
-            * For example, if sensors == INV_XYZ_GYRO, then the FIFO isn't
-            * being filled with accel data. The more parameter is non-zero if
-            * there are leftover packets in the FIFO. The HAL can use this
-            * information to increase the frequency at which this function is
-            * called.
-            */
-        hal.new_gyro = 0;
-        mpu_read_fifo(gyro, accel, &sensor_timestamp, &sensors, &more);
-        if (more)
-            hal.new_gyro = 1;
-        if (sensors & INV_XYZ_GYRO) {					
+        if (sensors & INV_XYZ_GYRO) {
             mpu.gyro.x = gyro[0];
             mpu.gyro.y = gyro[1];
             mpu.gyro.z = gyro[2];
@@ -3575,24 +3533,66 @@ void mpu_get_data(void)
             mpu.accel.z = accel[2];
             new_data = 1;
         }
+        if (sensors & INV_WXYZ_QUAT) {
+            mpu.quat.w = quat[0];
+            mpu.quat.x = quat[1];
+            mpu.quat.y = quat[2];
+            mpu.quat.z = quat[3];
+            mpu_calc_euler_angles();					// Calculate Euler angles
+            new_data = 1;
+        }
+	} else if (hal.new_gyro) {
+        short gyro[3], accel[3];
+        long temperature;
+        unsigned char sensors, more;
+        /* This function gets new data from the FIFO. The FIFO can contain
+            * gyro, accel, both, or neither. The sensors parameter tells the
+            * caller which data fields were actually populated with new data.
+            * For example, if sensors == INV_XYZ_GYRO, then the FIFO isn't
+            * being filled with accel data. The more parameter is non-zero if
+            * there are leftover packets in the FIFO. The HAL can use this
+            * information to increase the frequency at which this function is
+            * called.
+            */
+        hal.new_gyro = 0;
+        mpu_read_fifo(gyro, accel, &sensor_timestamp, &sensors, &more);
+        if (more)
+            hal.new_gyro = 1;
+        if (sensors & INV_XYZ_GYRO) {
+            mpu.gyro.x = gyro[0];
+            mpu.gyro.y = gyro[1];
+            mpu.gyro.z = gyro[2];
+            new_data = 1;
+            if (new_temp) {
+                new_temp = 0;
+                //mpu_get_temperature(&temperature, &sensor_timestamp);
+                mpu.temp = (int16_t)((temperature*100) >> 16); 	// Convert temperature[q16] to temperature*100[degC]
+            }
+        }
+        if (sensors & INV_XYZ_ACCEL) {
+            mpu.accel.x = accel[0];
+            mpu.accel.y = accel[1];
+            mpu.accel.z = accel[2];
+            new_data = 1;
+        }
 	}
 
 	if (new_data) {
         // do something if needed
-	}	
-		
+	}
+
 }
 
 
 /* =========================== MPU-6050 Post-processing Functions =========================== */
 
 void mpu_read_gyro_raw(void)
-{	
+{
 	uint8_t buffer[6];
-	
+
 	// Read 6 BYTES of data starting from GYRO_XOUT_H register (the MPU-6050 automatically increments the register address)
 	i2c_readBytes(st.hw->addr, st.reg->raw_accel, 6, buffer);
-	
+
 	mpu.gyro.x = (int16_t)(buffer[0] << 8 | buffer[1]);
 	mpu.gyro.y = (int16_t)(buffer[2] << 8 | buffer[3]);
 	mpu.gyro.z = (int16_t)(buffer[4] << 8 | buffer[5]);
@@ -3603,7 +3603,7 @@ void mpu_read_gyro_raw(void)
 	     for more details check GYRO_CONFIG Register              ****/
 	//Gx = mpu.gyro.x / 16.4;
 	//Gy = mpu.gyro.y / 16.4;
-	//Gz = mpu.gyro.z / 16.4;		
+	//Gz = mpu.gyro.z / 16.4;
 }
 
 
@@ -3613,7 +3613,7 @@ void mpu_read_accel_raw(void)
 
 	// Read 6 BYTES of data starting from ACCEL_XOUT_H register (the MPU-6050 automatically increments the register address)
 	i2c_readBytes(st.hw->addr, st.reg->raw_gyro, 6, buffer);
-	
+
 	mpu.accel.x = (int16_t)(buffer[0] << 8 | buffer[1]);
 	mpu.accel.y = (int16_t)(buffer[2] << 8 | buffer[3]);
 	mpu.accel.z = (int16_t)(buffer[4] << 8 | buffer[5]);
@@ -3636,26 +3636,26 @@ void mpu_read_accel_raw(void)
  * 3. yaw   (z-axis rotation)
  */
 void mpu_calc_euler_angles(void) {
-	
+
 	float w, x, y, z;
 	float yaw, pitch, roll;
-	
+
 	// Convert quaternions[q30] to quaternion[float]
 	w = (float)mpu.quat.w / q30; 		// q30 = 2^30
 	x = (float)mpu.quat.x / q30;
 	y = (float)mpu.quat.y / q30;
 	z = (float)mpu.quat.z / q30;
-	
-	// Calculate Euler angles: source <https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles>	
+
+	// Calculate Euler angles: source <https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles>
 	roll 	= atan2(2*(w*x + y*z), 1 - 2*(x*x + y*y));		// roll  (x-axis rotation)
 	pitch   = asin(2*(w*y - z*x)); 							// pitch (y-axis rotation)
 	yaw 	= atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z)); 		// yaw   (z-axis rotation)
-	
+
 	// Convert [rad] to [deg*100]
 	mpu.euler.roll 		= (int16_t)(roll  * RAD2DEG * 100);
 	mpu.euler.pitch 	= (int16_t)(pitch * RAD2DEG * 100);
 	mpu.euler.yaw 		= (int16_t)(yaw   * RAD2DEG * 100);
-	
+
 }
 
 
@@ -3741,7 +3741,7 @@ void mpu_handle_input(char c)
             consoleLog("s: Run self-test (device must be facing up or down)\n");
             consoleLog("===========================\n");
         break;
-				
+
 		/* These commands turn off individual sensors. */
     case '8':
         hal.sensors ^= ACCEL_ON;
@@ -3751,14 +3751,14 @@ void mpu_handle_input(char c)
         hal.sensors ^= GYRO_ON;
         mpu_setup_gyro();
         break;
-		
+
     /* This command prints out the value of each gyro register for debugging.
      * If logging is disabled, this function has no effect.
      */
     case 'r':
         mpu_reg_dump();
-        break;		
-		   
+        break;
+
     /* These commands print individual sensor data. */
     case 'a':
         hal.report ^= PRINT_ACCEL;
@@ -3785,7 +3785,7 @@ void mpu_handle_input(char c)
         dmp_set_pedometer_walk_time(0);
 		consoleLog("Pedometer reset done.\n");
         break;
-		
+
 	/* Depending on your application, sensor data may be needed at a faster or
      * slower rate. These commands can speed up or slow down the rate at which
      * the sensor data is received.
@@ -3808,7 +3808,7 @@ void mpu_handle_input(char c)
         } else
             if (0 == mpu_set_sample_rate(100))   {consoleLog("MPU: 100 Hz\n");}
         break;
-				
+
 		/* Set hardware to interrupt on gesture event only. This feature is
 		 * useful for keeping the MCU asleep until the DMP detects as a tap or
 		 * orientation event.
@@ -3822,9 +3822,9 @@ void mpu_handle_input(char c)
         break;
 
 		/* Toggle DMP. */
-    case 'f':				
-        if (hal.lp_accel_mode)	/* LP accel is not compatible with the DMP. */            
-            return;        
+    case 'f':
+        if (hal.lp_accel_mode)	/* LP accel is not compatible with the DMP. */
+            return;
         if (hal.dmp_on) {
             unsigned short dmp_rate;
             unsigned char mask = 0;
@@ -3871,11 +3871,11 @@ void mpu_handle_input(char c)
             consoleLog("LP quaternion disabled.\n");
         } else
             consoleLog("LP quaternion enabled.\n");
-        break;		
-				
+        break;
+
 		/* Test out low-power accel mode. */
     case 'w':
-        if (hal.dmp_on) {          
+        if (hal.dmp_on) {
             consoleLog("Warning: For low-power mode, DMP needs to be disabled.\n");
             break; 	 /* LP accel is not compatible with the DMP. */
         }
@@ -3893,7 +3893,7 @@ void mpu_handle_input(char c)
         hal.sensors |= ACCEL_ON;
         hal.lp_accel_mode = 1;
         break;
-				
+
     /* The hardware self test is completely localized in the gyro driver.
      * Logging is assumed to be enabled; otherwise, a couple LEDs could
      * probably be used here to display the test results.
@@ -3901,7 +3901,7 @@ void mpu_handle_input(char c)
     case 's':
         mpu_start_self_test();
         break;
-				
+
     default:
         break;
     }
@@ -3938,7 +3938,7 @@ void mpu_print_to_console(void)
 				log_i( "Walked %ld steps in %ld seconds..\n", step_count, walk_time/1000);
 			}
 		}
-	#endif	
+	#endif
 }
 
 #endif // MPU_SENSOR_ENABLE
