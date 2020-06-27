@@ -27,22 +27,21 @@
 #include "config.h"
 #include "util.h"
 
-#define UART_DMA_CHANNEL_TX 			DMA1_Channel7
-#define UART_DMA_CHANNEL_RX 			DMA1_Channel6
 
 #if defined(PRINTF_FLOAT_SUPPORT) && defined(SERIAL_DEBUG) && defined(__GNUC__)
 	asm(".global _printf_float"); 		// this is the magic trick for printf to support float. Warning: It will increase code considerably! Better to avoid!
 #endif
 
 /* =========================== Defines General =========================== */
-// #define _BV(bit) 	(1 << (bit)) 
-// #define ARRAYNUM(arr_nanme)      (uint32_t)(sizeof(arr_nanme) / sizeof(*(arr_nanme)))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define i2c_write   i2c_writeBytes
-#define i2c_read    i2c_readBytes 
-#define delay_ms    HAL_Delay
-#define get_ms      get_tick_count_ms
+// #define _BV(bit) 					(1 << (bit)) 
+#define ARRAY_LEN(x) 				(uint32_t)(sizeof(x) / sizeof(*(x)))
+#define min(a, b) 					(((a) < (b)) ? (a) : (b))
+#define max(a, b) 					(((a) > (b)) ? (a) : (b))
+#define i2c_write 					i2c_writeBytes
+#define i2c_read 					i2c_readBytes 
+#define delay_ms 					HAL_Delay
+#define get_ms						get_tick_count_ms
+#define log_i 						printf			// redirect the log_i debug function to printf
 
 #ifdef BYPASS_CUBEMX_DEFINES
 
@@ -88,7 +87,6 @@
 #endif
 
 /* =========================== Defines MPU-6050 =========================== */
-#define log_i       				printf				// redirect the log_i debug function to printf
 #define RAD2DEG 					57.295779513082323  // RAD2DEG = 180/pi. Example: angle[deg] = angle[rad] * RAD2DEG
 #define q30 						1073741824 			// 1073741824 = 2^30
 #define ACCEL_ON        			(0x01)
@@ -135,4 +133,4 @@ typedef struct {
 	int16_t 	temp;
 } MPU_Data;
 
-#endif
+#endif //  DEFINES_H 
