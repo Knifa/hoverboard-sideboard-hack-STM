@@ -47,10 +47,10 @@
 /* ==================================== SETTINGS MPU-6050 ==================================== */
 #define MPU_SENSOR_ENABLE                     // [-] Enable flag for MPU-6050 sensor. Comment-out this flag to Disable the MPU sensor and reduce code size.
 #define MPU_DMP_ENABLE                        // [-] Enable flag for MPU-6050 DMP (Digital Motion Processing) functionality.
-#define MPU_DEFAULT_HZ            20          // [Hz] Default MPU frequecy: must be between 1Hz and 200Hz.
+#define MPU_DEFAULT_HZ            200          // [Hz] Default MPU frequecy: must be between 1Hz and 200Hz.
 #define TEMP_READ_MS              500         // [ms] Temperature read time interval
 #define PEDO_READ_MS              1000        // [ms] Pedometer read time interval
-// #define USE_CAL_HW_REGISTERS                  // [-] Uncommnent this to SAVE the sensor calibration to the MPU-6050 registers after the Self-test was run
+#define USE_CAL_HW_REGISTERS                  // [-] Uncommnent this to SAVE the sensor calibration to the MPU-6050 registers after the Self-test was run
 
 // DMP Tap Detection Settings
 #define DMP_TAP_AXES              TAP_XYZ     // [-] Set which axes will register a tap: TAP_XYZ, TAP_X, TAP_Y, TAP_Z
@@ -67,10 +67,10 @@
   #define SERIAL_DEBUG                        // [-] Define for Serial Debug via the serial port
 #elif defined(VARIANT_HOVERBOARD)
   #define SERIAL_CONTROL                      // [-] Define for Serial Control via the serial port
-  #define SERIAL_FEEDBACK                     // [-] Define for Serial Feedback via the serial port
+  //#define SERIAL_FEEDBACK                     // [-] Define for Serial Feedback via the serial port
 #endif
 #ifdef BYPASS_CUBEMX_DEFINES
-  #define USART_MAIN_BAUD         38400       // [bit/s] MAIN Serial Tx/Rx baud rate
+  #define USART_MAIN_BAUD         921600      // [bit/s] MAIN Serial Tx/Rx baud rate
 #endif
 #define SERIAL_START_FRAME        0xABCD      // [-] Start frame definition for reliable serial communication
 #define SERIAL_BUFFER_SIZE        64          // [bytes] Size of Serial Rx buffer. Make sure it is always larger than the 'Feedback' structure size
